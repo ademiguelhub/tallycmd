@@ -4,12 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project purpose
 
-Tallycmd is a personal finance web app for importing bank statements incrementally, categorising and adjusting transactions (including split/settled expenses), and visualising spending. It is multi-user by design, with the primary user being the developer. Target hosting is a self-hosted homelab (TrueNAS + nginx/Traefik).
+Tallycmd is a personal finance web app for importing bank statements incrementally, categorising and adjusting transactions (including split/settled expenses), and visualising spending. It is multi-user by design, with the primary user being the developer. Target hosting is a self-hosted homelab running Docker on TrueNAS, with Nginx Proxy Manager (NPM) as the reverse proxy.
 
 ## Technology stack
 
 - **Runtime:** .NET 10
 - **API:** ASP.NET Core Web API (Minimal API style)
+- **Database:** SQL Server (Linux Docker image — `mcr.microsoft.com/mssql/server:2022-latest`)
 - **ORM:** Entity Framework Core, code-first, single `DbContext` inheriting from `IdentityDbContext`
 - **Frontend:** Blazor Server — `InteractiveServer` render mode, prerendering **disabled**
 - **CSS:** Tailwind CSS
@@ -19,11 +20,11 @@ Tallycmd is a personal finance web app for importing bank statements incremental
 
 Three projects, all in one solution (`Tallycmd.slnx`):
 
-| Project | Role |
-|---|---|
-| `Tallycmd.Shared` | Class library — DTOs, service interfaces, shared utilities. No dependency on Api or Ui. |
-| `Tallycmd.Api` | ASP.NET Core Web API — EF DbContext, Identity, JWT issuance, refresh token management, domain service classes, REST endpoints. |
-| `Tallycmd.Ui` | Blazor Server app — typed `HttpClient` services, `JwtAuthenticationStateProvider`, `InMemoryTokenStore`, auth delegating handler, Tailwind UI components. No DB or Identity references. |
+| Project           | Role                                                                                                                                                                                    |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Tallycmd.Shared` | Class library — DTOs, service interfaces, shared utilities. No dependency on Api or Ui.                                                                                                 |
+| `Tallycmd.Api`    | ASP.NET Core Web API — EF DbContext, Identity, JWT issuance, refresh token management, domain service classes, REST endpoints.                                                          |
+| `Tallycmd.Ui`     | Blazor Server app — typed `HttpClient` services, `JwtAuthenticationStateProvider`, `InMemoryTokenStore`, auth delegating handler, Tailwind UI components. No DB or Identity references. |
 
 Both `Api` and `Ui` reference `Shared`. `Ui` has **no project reference to `Api`** — all communication is over HTTP, keeping the door open for future clients (mobile, CLI importer) without refactoring.
 
@@ -43,6 +44,14 @@ The JWT access token lives in a scoped `InMemoryTokenStore` (never in browser st
 
 **Auth in Ui — custom `JwtAuthenticationStateProvider`**
 No ASP.NET Identity references in the Ui project. Works with Blazor's `[Authorize]` and `<AuthorizeView>` via the `AuthenticationStateProvider` abstraction. Calls `NotifyAuthenticationStateChanged` after login/logout.
+
+## Code conventions
+
+**Usings — C# projects**
+Each project has a single `GlobalUsings.cs` at its root. All `using` declarations go there. No `using` statements at the top of individual `.cs` files.
+
+**Usings — Blazor components**
+All `@using` directives go in the project's root `_Imports.razor`. No `@using` at the top of individual `.razor` files.
 
 ## Commands
 
@@ -68,4 +77,4 @@ dotnet test --filter "FullyQualifiedName~MyTestClass.MyTestMethod"
 - **Domain model:** Transaction, Category, and split/settle adjustment schema — sketch before writing any EF migrations.
 - **Bank statement import:** Format support (CSV, OFX, PDF), incremental deduplication strategy, API endpoint vs. background service.
 - **Tailwind build pipeline:** npm + Tailwind CLI integration with .NET 10 / Blazor, or CDN play-mode for early prototyping.
-- **Hosting:** CORS origin configuration and reverse proxy setup (nginx / Traefik) once deployment target is confirmed.
+- **Hosting:** CORS origin configuration for NPM reverse proxy. Docker Compose stack needed for Api + Ui + SQL Server containers.

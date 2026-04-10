@@ -40,9 +40,6 @@ dist/
 .idea/
 *.sln.iml
 
-## VS Code
-.vscode/
-
 ## OS
 .DS_Store
 Thumbs.db

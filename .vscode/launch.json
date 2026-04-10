@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "UI",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/Tallycmd.Ui/Tallycmd.Ui.csproj",
+            "launchConfigurationId": ""
+        },
+        {
+            "name": "API",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/Tallycmd.Api/Tallycmd.Api.csproj",
+            "launchConfigurationId": ""
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Web App",
+            "preLaunchTask": "Build Solution",
+            "configurations": [
+                "UI",
+                "API"
+            ]
+        }
+    ]
+}

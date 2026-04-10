@@ -1,0 +1,235 @@
+
+<h2 class="sr-only">Tallycmd — technical project brief summarising architecture, technology decisions, and implementation notes from the design conversation.</h2>
+
+<style>
+  .spec { font-family: var(--font-sans); max-width: 860px; padding: 2rem 0; }
+  .spec-header { border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  .spec-title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .spec-sub { font-size: 14px; color: var(--color-text-secondary); margin: 0; }
+  .section { margin-bottom: 2rem; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin: 0 0 12px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
+  .card-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .card-val { font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.5; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; margin-right: 4px; margin-bottom: 4px; }
+  .badge-blue { background: #E6F1FB; color: #0C447C; }
+  .badge-teal { background: #E1F5EE; color: #085041; }
+  .badge-amber { background: #FAEEDA; color: #633806; }
+  .badge-gray { background: #F1EFE8; color: #444441; }
+  .badge-coral { background: #FAECE7; color: #712B13; }
+  .decision { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; margin-bottom: 8px; }
+  .decision-q { font-size: 13px; color: var(--color-text-secondary); margin: 0 0 4px; }
+  .decision-a { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .decision-why { font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.6; }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 2rem 0; }
+  .proj-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .proj-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
+  .proj-card.accent { border-color: #378ADD; }
+  .proj-title { font-size: 13px; font-weight: 500; margin: 0 0 6px; color: var(--color-text-primary); }
+  .proj-desc { font-size: 12px; color: var(--color-text-secondary); margin: 0 0 8px; line-height: 1.5; }
+  .proj-items { list-style: none; padding: 0; margin: 0; }
+  .proj-items li { font-size: 12px; color: var(--color-text-secondary); padding: 2px 0; padding-left: 12px; position: relative; }
+  .proj-items li::before { content: "–"; position: absolute; left: 0; color: var(--color-text-tertiary); }
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .flow-step { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 12px; font-size: 13px; color: var(--color-text-primary); white-space: nowrap; }
+  .flow-arrow { color: var(--color-text-tertiary); font-size: 14px; }
+  .note { border-left: 2px solid #378ADD; padding: 10px 14px; margin-top: 8px; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; }
+  .note p { font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.6; }
+  @media (max-width: 600px) { .proj-grid { grid-template-columns: 1fr; } .cards { grid-template-columns: 1fr; } }
+</style>
+
+<div class="spec">
+
+  <div class="spec-header">
+    <p class="spec-title">Tallycmd — project specification</p>
+    <p class="spec-sub">Personal finance web app · Architecture brief · April 2026</p>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Purpose</p>
+    <div class="decision">
+      <p class="decision-why">A personal finance web app to import bank statements incrementally, categorise and adjust transactions (including split/settled expenses), and visualise spending. Designed as a multi-user system from the start, with the primary user being the developer.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Technology stack</p>
+    <div class="cards">
+      <div class="card">
+        <p class="card-name">Runtime</p>
+        <p class="card-val">.NET 10</p>
+      </div>
+      <div class="card">
+        <p class="card-name">API</p>
+        <p class="card-val">ASP.NET Core Web API</p>
+      </div>
+      <div class="card">
+        <p class="card-name">ORM</p>
+        <p class="card-val">Entity Framework Core (code-first)</p>
+      </div>
+      <div class="card">
+        <p class="card-name">Frontend framework</p>
+        <p class="card-val">Blazor Server</p>
+      </div>
+      <div class="card">
+        <p class="card-name">CSS</p>
+        <p class="card-val">Tailwind CSS</p>
+      </div>
+      <div class="card">
+        <p class="card-name">Auth</p>
+        <p class="card-val">ASP.NET Identity + JWT + refresh token cookies</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section">
+    <p class="section-label">Solution structure</p>
+    <div class="proj-grid">
+      <div class="proj-card">
+        <p class="proj-title">Tallycmd.Shared</p>
+        <p class="proj-desc">Class library. No dependencies on API or UI.</p>
+        <ul class="proj-items">
+          <li>Domain DTOs</li>
+          <li>Service interfaces</li>
+          <li>Shared utilities</li>
+        </ul>
+      </div>
+      <div class="proj-card accent">
+        <p class="proj-title">Tallycmd.Api</p>
+        <p class="proj-desc">ASP.NET Core Web API. Single source of truth for all data and auth.</p>
+        <ul class="proj-items">
+          <li>EF Core DbContext</li>
+          <li>ASP.NET Identity</li>
+          <li>JWT issuance</li>
+          <li>Refresh token management</li>
+          <li>Domain service classes</li>
+          <li>REST endpoints</li>
+        </ul>
+      </div>
+      <div class="proj-card">
+        <p class="proj-title">Tallycmd.Ui</p>
+        <p class="proj-desc">Blazor Server app. Pure client — no DB or Identity dependencies.</p>
+        <ul class="proj-items">
+          <li>Typed HttpClient services</li>
+          <li>JWT auth state provider</li>
+          <li>In-memory token store</li>
+          <li>Auth delegating handler</li>
+          <li>Tailwind UI components</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top: 10px;">
+      <p>The API and Ui projects both reference Shared. The Ui project has no direct reference to the Api project — all communication is over HTTP. This means a future mobile client, CLI import script, or alternative UI can plug into the same API without any refactoring.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section">
+    <p class="section-label">Key architecture decisions</p>
+
+    <div class="decision">
+      <p class="decision-q">Blazor render mode</p>
+      <p class="decision-a">InteractiveServer, prerendering disabled</p>
+      <p class="decision-why">Eliminates the double-lifecycle class of bugs (JS interop not ready, operations that throw in prerender). Acceptable brief loading state for a personal tool. Reconnects automatically via SignalR.</p>
+    </div>
+
+    <div class="decision">
+      <p class="decision-q">Frontend ↔ backend communication</p>
+      <p class="decision-a">Typed HttpClient with a delegating handler, not direct DI service injection</p>
+      <p class="decision-why">Components call injected service interfaces (e.g. ITransactionService) whose implementation wraps HttpClient calls. Auth token attachment is transparent via the handler. The interface contract is decoupled from transport — a future client only needs a new implementation, not a new API.</p>
+    </div>
+
+    <div class="decision">
+      <p class="decision-q">Database layout</p>
+      <p class="decision-a">Single database, single DbContext inheriting from IdentityDbContext</p>
+      <p class="decision-why">Preserves foreign key integrity between domain entities and the user table. Enables natural LINQ joins across users and transactions. Consistent with the work project pattern which proved this trade-off worthwhile.</p>
+    </div>
+
+    <div class="decision">
+      <p class="decision-q">Authentication model</p>
+      <p class="decision-a">JWT access token (in-memory, scoped to Blazor circuit) + refresh token (HttpOnly cookie)</p>
+      <p class="decision-why">Access token never touches browser storage — protected from XSS. Refresh token in HttpOnly cookie is invisible to JavaScript and sent automatically by the browser. Silent refresh on circuit reconnect means users are never prompted to re-login within the 30-day session window.</p>
+    </div>
+
+    <div class="decision">
+      <p class="decision-q">Auth in the Blazor project</p>
+      <p class="decision-a">Custom JwtAuthenticationStateProvider — no ASP.NET Identity references in the Ui project</p>
+      <p class="decision-why">Blazor's [Authorize] and &lt;AuthorizeView&gt; work via the AuthenticationStateProvider abstraction. The custom implementation reads claims from the in-memory JWT, attempts a silent refresh on circuit start if no token is present, and calls NotifyAuthenticationStateChanged after login/logout.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section">
+    <p class="section-label">Session lifecycle</p>
+    <div class="flow">
+      <div class="flow-step">User logs in</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">API issues JWT + sets HttpOnly refresh cookie</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">JWT stored in scoped InMemoryTokenStore</div>
+    </div>
+    <div class="flow">
+      <div class="flow-step">Circuit breaks / tab closes</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">JWT lost; refresh cookie survives in browser</div>
+    </div>
+    <div class="flow">
+      <div class="flow-step">New circuit starts</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">GetAuthenticationStateAsync finds no token</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">POST /api/auth/refresh (browser sends cookie automatically)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">New JWT stored; user is seamlessly authenticated</div>
+    </div>
+    <div class="flow">
+      <div class="flow-step">Refresh token expires (30 days) or user logs out</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Redirect to login page</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section">
+    <p class="section-label">Deferred / open questions</p>
+    <div class="cards">
+      <div class="card">
+        <p class="card-name">Domain model design</p>
+        <p class="card-val">Transaction, Category, and split/settle adjustment schema to be sketched before any EF migrations are written.</p>
+      </div>
+      <div class="card">
+        <p class="card-name">Bank statement import</p>
+        <p class="card-val">Format (CSV, OFX, PDF), incremental deduplication strategy, and whether import runs as an API endpoint or a background service.</p>
+      </div>
+      <div class="card">
+        <p class="card-name">Tailwind setup</p>
+        <p class="card-val">Build pipeline integration with .NET 10 / Blazor (npm + Tailwind CLI or CDN play mode for prototyping).</p>
+      </div>
+      <div class="card">
+        <p class="card-name">Hosting</p>
+        <p class="card-val">Likely self-hosted on TrueNAS homelab. HTTPS, CORS origin configuration, and reverse proxy (nginx / Traefik) to be decided.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section">
+    <p class="section-label">Rationale tags</p>
+    <span class="badge badge-blue">future-proof</span>
+    <span class="badge badge-teal">multi-user from day 1</span>
+    <span class="badge badge-gray">no prerendering complexity</span>
+    <span class="badge badge-coral">no JS/TS required</span>
+    <span class="badge badge-amber">single source of truth for auth</span>
+    <span class="badge badge-blue">API-first for future clients</span>
+    <span class="badge badge-teal">XSS-resilient token storage</span>
+    <span class="badge badge-gray">seamless session recovery</span>
+  </div>
+
+</div>

@@ -1,6 +1,6 @@
-@TallyCmd.Api_HostAddress = http://localhost:5291
+@TallycmdApi_HostAddress = https://localhost:11443
 
-GET {{TallyCmd.Api_HostAddress}}/weatherforecast/
+GET {{TallycmdApi_HostAddress}}/api/health
 Accept: application/json
 
 ###

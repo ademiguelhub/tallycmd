@@ -59,7 +59,7 @@ All `@using` directives go in the project's root `_Imports.razor`. No `@using` a
 # Build entire solution
 dotnet build
 
-# Run the API (http, port 5291)
+# Run the API (https, port 11443)
 dotnet run --project Tallycmd.Api
 
 # Watch mode (API)

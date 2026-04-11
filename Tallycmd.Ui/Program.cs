@@ -3,6 +3,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services
+    .AddHttpClient<TallycmdApiClient>(c =>
+        c.BaseAddress = new Uri(builder.Configuration["Api:BaseUrl"]!))
+    .AddHttpMessageHandler<AuthDelegatingHandler>();
+
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<InMemoryTokenStore>();
 builder.Services.AddScoped<AuthDelegatingHandler>();
@@ -10,10 +15,6 @@ builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(
     sp => sp.GetRequiredService<JwtAuthenticationStateProvider>());
 builder.Services.AddScoped<IAuthService, AuthService>();
-
-builder.Services.AddHttpClient("TallycmdApi", c =>
-    c.BaseAddress = new Uri(builder.Configuration["Api:BaseUrl"]!))
-    .AddHttpMessageHandler<AuthDelegatingHandler>();
 
 var app = builder.Build();
 
@@ -31,4 +32,4 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.Run();
+await app.RunAsync();

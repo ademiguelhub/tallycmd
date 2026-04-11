@@ -1,12 +1,11 @@
 namespace Tallycmd.Ui.Services;
 
 public class AuthService(
-    IHttpClientFactory httpClientFactory,
+    TallycmdApiClient client,
     JwtAuthenticationStateProvider authStateProvider) : IAuthService
 {
     public async Task<LoginResponse?> LoginAsync(LoginRequest request)
     {
-        var client = httpClientFactory.CreateClient("TallycmdApi");
         var response = await client.PostAsJsonAsync("/api/auth/login", request);
 
         if (!response.IsSuccessStatusCode)
@@ -22,7 +21,6 @@ public class AuthService(
 
     public async Task LogoutAsync()
     {
-        var client = httpClientFactory.CreateClient("TallycmdApi");
         await client.PostAsync("/api/auth/logout", null);
         authStateProvider.NotifyUserLoggedOut();
     }

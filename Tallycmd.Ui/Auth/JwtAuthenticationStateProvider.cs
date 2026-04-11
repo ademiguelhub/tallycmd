@@ -2,7 +2,7 @@ namespace Tallycmd.Ui.Auth;
 
 public class JwtAuthenticationStateProvider(
     InMemoryTokenStore tokenStore,
-    IHttpClientFactory httpClientFactory) : AuthenticationStateProvider
+    TallycmdApiClient client) : AuthenticationStateProvider
 {
     private static readonly AuthenticationState Anonymous =
         new(new ClaimsPrincipal(new ClaimsIdentity()));
@@ -15,7 +15,6 @@ public class JwtAuthenticationStateProvider(
         // Attempt silent refresh — browser sends the HttpOnly cookie automatically
         try
         {
-            var client = httpClientFactory.CreateClient("TallycmdApi");
             var response = await client.PostAsync("/api/auth/refresh", null);
             if (!response.IsSuccessStatusCode)
                 return Anonymous;

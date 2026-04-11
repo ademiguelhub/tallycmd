@@ -53,6 +53,12 @@ Each project has a single `GlobalUsings.cs` at its root. All `using` declaration
 **Usings — Blazor components**
 All `@using` directives go in the project's root `_Imports.razor`. No `@using` at the top of individual `.razor` files.
 
+**HttpClient — typed clients, not named clients**
+Register HTTP clients with `AddHttpClient<TClient>()` and inject the typed client directly. Never use `IHttpClientFactory.CreateClient("some-string")`. Each logical backend gets its own typed client class (e.g. `TallyApiClient : HttpClient`).
+
+**No magic strings / literal keys**
+Do not use raw string literals as identifiers (DI keys, route segments shared across projects, claim type names, policy names, etc.). If the same literal is used in both `Api` and `Ui`, define it as a `public const` in a `static class` in `Tallycmd.Shared`. If it is Ui-only or Api-only, the `static class` lives in that project. Prefer typed clients and strongly-typed options over keyed strings wherever the framework supports it.
+
 ## Commands
 
 ```bash

@@ -1,6 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorComponents()
+builder.Services
+    .AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services
@@ -8,28 +9,38 @@ builder.Services
         c.BaseAddress = new Uri(builder.Configuration["Api:BaseUrl"]!))
     .AddHttpMessageHandler<AuthDelegatingHandler>();
 
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<InMemoryTokenStore>();
-builder.Services.AddScoped<AuthDelegatingHandler>();
-builder.Services.AddScoped<JwtAuthenticationStateProvider>();
-builder.Services.AddScoped<AuthenticationStateProvider>(
-    sp => sp.GetRequiredService<JwtAuthenticationStateProvider>());
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services
+    .AddCascadingAuthenticationState()
+    .AddScoped<InMemoryTokenStore>()
+    .AddScoped<AuthDelegatingHandler>()
+    .AddScoped<JwtAuthenticationStateProvider>()
+    .AddScoped<AuthenticationStateProvider>(
+        sp => sp.GetRequiredService<JwtAuthenticationStateProvider>())
+    .AddScoped<IAuthService, AuthService>();
 
-var app = builder.Build();
+var application = builder.Build();
 
-if (!app.Environment.IsDevelopment())
+if (application.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    app.UseHsts();
+    application.UseMigrationsEndPoint();
+    application.UseStatusCodePages();
+}
+else
+{
+    application
+        .UseHsts()
+        .UseExceptionHandler("/error", createScopeForErrors: true)
+        .UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 }
 
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
-app.UseHttpsRedirection();
-app.UseAntiforgery();
+application.UseHttpsRedirection();
 
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
+application.UseAntiforgery();
+
+application.MapStaticAssets();
+
+application
+    .MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-await app.RunAsync();
+await application.RunAsync();

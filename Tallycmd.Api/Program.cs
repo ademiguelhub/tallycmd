@@ -1,43 +1,45 @@
+using Tallycmd.Api.Auth.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // EF Core + SQL Server
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services
+    .AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ASP.NET Identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-{
-    options.Password.RequireDigit = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequiredLength = 8;
-})
-.AddEntityFrameworkStores<AppDbContext>()
-.AddDefaultTokenProviders();
+builder.Services
+    .AddIdentity<ApplicationUser, IdentityRole>(options =>
+    {
+        options.Password.RequireDigit = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequiredLength = 8;
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
 
 // JWT Bearer
-var jwtKey = builder.Configuration["Jwt:Key"]!;
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services
+    .AddAuthentication(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-        ClockSkew = TimeSpan.Zero,
-    };
-});
-
-builder.Services.AddAuthorization();
-builder.Services.AddOpenApi();
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+            ClockSkew = TimeSpan.Zero,
+        };
+    });
 
 // CORS — Blazor UI origin
 builder.Services.AddCors(options =>
@@ -49,15 +51,21 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-var app = builder.Build();
+builder.Services.AddAuthorization();
 
-if (app.Environment.IsDevelopment())
-    app.MapOpenApi();
+builder.Services.AddOpenApi();
 
-app.UseCors("BlazorUi");
-app.UseAuthentication();
-app.UseAuthorization();
+var application = builder.Build();
 
-app.MapAuthEndpoints();
+application.UseCors("BlazorUi");
+application.UseAuthentication();
+application.UseAuthorization();
 
-await app.RunAsync();
+await application.SeedDefaultRolesAndAdminAsync();
+
+if (application.Environment.IsDevelopment())
+    application.MapOpenApi();
+
+application.MapAuthEndpoints();
+
+await application.RunAsync();

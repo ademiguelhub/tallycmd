@@ -59,6 +59,57 @@ Register HTTP clients with `AddHttpClient<TClient>()` and inject the typed clien
 **No magic strings / literal keys**
 Do not use raw string literals as identifiers (DI keys, route segments shared across projects, claim type names, policy names, etc.). If the same literal is used in both `Api` and `Ui`, define it as a `public const` in a `static class` in `Tallycmd.Shared`. If it is Ui-only or Api-only, the `static class` lives in that project. Prefer typed clients and strongly-typed options over keyed strings wherever the framework supports it.
 
+## Development environment
+
+**Strategy: infra in containers, apps on host.**
+SQL Server runs in Docker (managed by `docker-compose.yml`). The .NET apps run natively so the VS Code debugger can attach normally. This keeps the debug cycle fast while the DB environment matches production.
+
+**First-time setup**
+```bash
+# Start the SQL container (creates the named volume)
+docker compose up -d
+
+# Grant write permission to the mssql user (uid 10001) on the backups bind mount
+chmod o+w backups/
+
+# Apply EF migrations to create the schema
+dotnet ef database update --project Tallycmd.Api
+```
+
+**F5 (VS Code "Web App" compound)**
+Runs `DEBUG: Prepare` as `preLaunchTask`, which fans out in parallel to `SQL: Start` and `DOTNET: Build Solution`. Both must complete before the UI and API processes launch with the debugger attached.
+
+**VS Code tasks — DOTNET**
+
+| Task | What it does |
+| ---- | ------------ |
+| `DOTNET: Build Solution` | `dotnet build` on the full solution |
+| `DOTNET: Rebuild Solution` | `dotnet build -t:Rebuild` |
+
+**VS Code tasks — EF**
+
+| Task | What it does |
+| ---- | ------------ |
+| `EF: Check Changes` | Reports whether the model has pending migration changes |
+| `EF: Add Migration` | Prompts for a name and adds a migration to `Tallycmd.Api/Data/Migrations/` |
+| `EF: Remove Migration` | Removes the last unapplied migration |
+| `EF: Check Database` | Lists applied/pending migrations |
+| `EF: Migrate Database` | Applies all pending migrations (`database update`) |
+| `EF: Drop Database` | Drops the dev database |
+
+**VS Code tasks — SQL**
+
+| Task | What it does |
+| ---- | ------------ |
+| `SQL: Start` | `docker compose up -d` — idempotent, safe to run when already running |
+| `SQL: Stop` | `docker compose down` |
+| `SQL: Backup` | Creates a timestamped `.bak` in `backups/` on the host |
+| `SQL: Restore` | Prompts for a filename, kicks all connections, restores |
+| `SQL: List Backups` | Lists `.bak` files in `backups/` with sizes |
+
+**DB data management**
+`backups/` is bind-mounted into the container at `/var/opt/mssql/backup`. Backup files land directly on the host and are portable — copy a `.bak` to another machine and run `SQL: Restore` there. The named volume `tallycmd_sql-data` holds the live database and survives `docker compose down`; only `docker volume rm` destroys it.
+
 ## Commands
 
 ```bash
@@ -78,9 +129,19 @@ dotnet test
 dotnet test --filter "FullyQualifiedName~MyTestClass.MyTestMethod"
 ```
 
+## JWT signing key
+
+The `Jwt:Key` is the HMAC-SHA256 signing secret. Anyone with it can forge valid tokens — treat it like a password.
+
+- **Minimum length:** 32 bytes (256 bits). Generate with `openssl rand -base64 32`.
+- **Dev key** lives in `appsettings.Development.json`.
+- **Prod key** must never be committed. Inject via Docker env var: `Jwt__Key=<generated-value>` in `docker-compose.yml`.
+- `appsettings.json` (committed) should have no key; the app should throw on startup if one is missing.
+- **Rotation:** No built-in expiry. Rotate immediately if leaked. Routine rotation is optional for a homelab — rotating invalidates all active refresh tokens (forces re-login for all users).
+
 ## Open design questions (decide before implementing)
 
 - **Domain model:** Transaction, Category, and split/settle adjustment schema — sketch before writing any EF migrations.
 - **Bank statement import:** Format support (CSV, OFX, PDF), incremental deduplication strategy, API endpoint vs. background service.
 - **Tailwind build pipeline:** npm + Tailwind CLI integration with .NET 10 / Blazor, or CDN play-mode for early prototyping.
-- **Hosting:** CORS origin configuration for NPM reverse proxy. Docker Compose stack needed for Api + Ui + SQL Server containers.
+- **Hosting:** CORS origin configuration for NPM reverse proxy. Docker Compose currently manages SQL Server only (dev). A production compose stack adding Api + Ui containers is still needed.

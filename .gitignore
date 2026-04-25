@@ -31,6 +31,9 @@ appsettings.*.local.json
 secrets.json
 **/secrets.json
 
+## DB backups (host-mounted from container)
+backups/*.bak
+
 ## Tailwind
 node_modules/
 dist/

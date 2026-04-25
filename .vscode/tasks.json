@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build Solution",
+            "label": "DOTNET: Build Solution",
             "type": "process",
             "command": "dotnet",
             "args": [
@@ -16,7 +16,7 @@
             }
         },
         {
-            "label": "Rebuild Solution",
+            "label": "DOTNET: Rebuild Solution",
             "type": "process",
             "command": "dotnet",
             "args": [
@@ -127,6 +127,89 @@
                 "kind": "build",
                 "isDefault": false
             }
+        },
+        {
+            "label": "SQL: Start",
+            "type": "shell",
+            "command": "docker compose up -d",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "SQL: Stop",
+            "type": "shell",
+            "command": "docker compose down",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "SQL: Backup",
+            "type": "shell",
+            "command": "source .env && FNAME=\"tallycmd-dev_$(date +%Y%m%dT%H%M%S).bak\" && docker exec tallycmd-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -No -b -Q \"BACKUP DATABASE [tallycmd] TO DISK = N'/var/opt/mssql/backup/$FNAME' WITH FORMAT, INIT, STATS = 10\" && echo \"Saved: backups/$FNAME\"",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "SQL: Restore",
+            "type": "shell",
+            "command": "source .env && docker exec tallycmd-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -No -Q \"ALTER DATABASE [tallycmd] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; RESTORE DATABASE [tallycmd] FROM DISK = N'/var/opt/mssql/backup/${input:backupFile}' WITH REPLACE, STATS = 10; ALTER DATABASE [tallycmd] SET MULTI_USER;\"",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "SQL: List Backups",
+            "type": "shell",
+            "command": "ls -lh ${workspaceFolder}/backups/*.bak 2>/dev/null || echo 'No backups found'",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "DEBUG: Prepare",
+            "dependsOn": [
+                "SQL: Start",
+                "DOTNET: Build Solution"
+            ],
+            "dependsOrder": "parallel",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
         }
     ],
     "inputs": [
@@ -135,6 +218,12 @@
             "type": "promptString",
             "description": "Enter migration name",
             "default": "NewMigration"
+        },
+        {
+            "id": "backupFile",
+            "type": "promptString",
+            "description": "Backup filename to restore (run 'SQL: List Backups' to see available files)",
+            "default": "tallycmd-dev_.bak"
         }
     ]
 }

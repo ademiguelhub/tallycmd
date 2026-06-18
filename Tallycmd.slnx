@@ -1,5 +1,5 @@
 <Solution>
   <Project Path="Tallycmd.Api/Tallycmd.Api.csproj" />
-  <Project Path="Tallycmd.Shared/Tallycmd.Shared.csproj" />
+  <Project Path="Tallycmd.Common/Tallycmd.Common.csproj" />
   <Project Path="Tallycmd.Ui/Tallycmd.Ui.csproj" />
 </Solution>

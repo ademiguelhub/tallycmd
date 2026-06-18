@@ -11,4 +11,4 @@ global using Microsoft.IdentityModel.Tokens;
 global using Tallycmd.Api.Auth;
 global using Tallycmd.Api.Data;
 global using Tallycmd.Api.Domain;
-global using Tallycmd.Shared.Auth;
+global using Tallycmd.Common.Auth;

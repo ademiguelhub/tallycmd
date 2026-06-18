@@ -1,4 +1,4 @@
-namespace Tallycmd.Shared.Auth;
+namespace Tallycmd.Common.Auth;
 
 public interface IAuthService
 {

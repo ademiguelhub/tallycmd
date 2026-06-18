@@ -1,4 +1,4 @@
-namespace Tallycmd.Shared.Auth;
+namespace Tallycmd.Common.Auth;
 
 public record LoginRequest(string Email, string Password);
 public record LoginResponse(string AccessToken, string Email, string UserId);

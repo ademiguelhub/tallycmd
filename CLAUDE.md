@@ -22,11 +22,11 @@ Three projects, all in one solution (`Tallycmd.slnx`):
 
 | Project           | Role                                                                                                                                                                                    |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Tallycmd.Shared` | Class library — DTOs, service interfaces, shared utilities. No dependency on Api or Ui.                                                                                                 |
+| `Tallycmd.Common` | Class library — DTOs, service interfaces, shared utilities. No dependency on Api or Ui.                                                                                                 |
 | `Tallycmd.Api`    | ASP.NET Core Web API — EF DbContext, Identity, JWT issuance, refresh token management, domain service classes, REST endpoints.                                                          |
 | `Tallycmd.Ui`     | Blazor Server app — typed `HttpClient` services, `JwtAuthenticationStateProvider`, `InMemoryTokenStore`, auth delegating handler, Tailwind UI components. No DB or Identity references. |
 
-Both `Api` and `Ui` reference `Shared`. `Ui` has **no project reference to `Api`** — all communication is over HTTP, keeping the door open for future clients (mobile, CLI importer) without refactoring.
+Both `Api` and `Ui` reference `Common`. `Ui` has **no project reference to `Api`** — all communication is over HTTP, keeping the door open for future clients (mobile, CLI importer) without refactoring.
 
 ## Key architecture decisions
 
@@ -57,7 +57,7 @@ All `@using` directives go in the project's root `_Imports.razor`. No `@using` a
 Register HTTP clients with `AddHttpClient<TClient>()` and inject the typed client directly. Never use `IHttpClientFactory.CreateClient("some-string")`. Each logical backend gets its own typed client class (e.g. `TallyApiClient : HttpClient`).
 
 **No magic strings / literal keys**
-Do not use raw string literals as identifiers (DI keys, route segments shared across projects, claim type names, policy names, etc.). If the same literal is used in both `Api` and `Ui`, define it as a `public const` in a `static class` in `Tallycmd.Shared`. If it is Ui-only or Api-only, the `static class` lives in that project. Prefer typed clients and strongly-typed options over keyed strings wherever the framework supports it.
+Do not use raw string literals as identifiers (DI keys, route segments shared across projects, claim type names, policy names, etc.). If the same literal is used in both `Api` and `Ui`, define it as a `public const` in a `static class` in `Tallycmd.Common`. If it is Ui-only or Api-only, the `static class` lives in that project. Prefer typed clients and strongly-typed options over keyed strings wherever the framework supports it.
 
 ## Development environment
 

@@ -1,9 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dec38e0a-fa94-4b9e-af8a-545c279d75d9</UserSecretsId>
   </PropertyGroup>
 
@@ -20,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tallycmd.Shared\Tallycmd.Shared.csproj" />
+    <ProjectReference Include="..\Tallycmd.Common\Tallycmd.Common.csproj" />
   </ItemGroup>
 
 </Project>

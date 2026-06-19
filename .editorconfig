@@ -580,13 +580,6 @@ dotnet_diagnostic.CA2227.severity = none
 dotnet_diagnostic.CA2254.severity = none
 
 
-[Program.cs]
-
-# IDE0058: Remove unnecessary expression value
-dotnet_diagnostic.IDE0058.severity = none
-csharp_style_unused_value_expression_statement_preference = discard_variable
-
-
 [*Controller.cs]
 
 # CA1515: Consider making public types internal
